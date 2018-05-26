@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xupt.dao_user.MusicDao">
+	<resultMap type="Music" id="BaseResultMap">
+		<id column="music_id" jdbcType="INTEGER" property="music_id"/>
+		<result column="name" jdbcType="VARCHAR" property="name"/>
+		<result column="musician" jdbcType="VARCHAR" property="musician"/>
+		<result column="upload_date" jdbcType="VARCHAR" property="upload_date"/>
+		<result column="description" jdbcType="VARCHAR" property="description"/>
+		<result column="music_type_id" jdbcType="INTEGER" property="type"/>
+		<result column="music_type_name" jdbcType="VARCHAR" property="typeName"/>
+		<result column="play_num" jdbcType="INTEGER" property="play_num"/>
+		<result column="img_addr" jdbcType="VARCHAR" property="img_addr"/>
+		<result column="save_addr" jdbcType="VARCHAR" property="save_addr"/>
+	</resultMap>
+
+	<resultMap type="MusicType" id="rm">
+		<id column="music_type_id" jdbcType="INTEGER" property="music_type_id"/>
+		<result column="music_type_name" jdbcType="VARCHAR" property="music_type_name"/>
+		<result column="music_type_status" jdbcType="BOOLEAN" property="music_type_status"/>
+	</resultMap>
+	
+	<!-- 为dao接口方法提供sql语句设置 -->
+	<select id="getMusicByType" resultMap="BaseResultMap">
+		SELECT m.music_id,tp.music_type_id,tp.music_type_name,m.name,m.musician,m.upload_date,
+		m.description,m.play_num,m.img_addr,m.save_addr
+		FROM music m
+		LEFT OUTER JOIN music_type tp
+		ON m.music_type_id = tp.music_type_id
+		WHERE m.music_type_id = #{type}
+		<if test="start!=null and pageSize!=null">
+			limit #{start},#{pageSize}
+		</if>
+	</select>
+	
+	<select id="getMusic" resultMap="BaseResultMap">
+		SELECT m.music_id,tp.music_type_id,tp.music_type_name,m.name,m.musician,m.upload_date,
+		m.description,m.play_num,m.img_addr,m.save_addr
+		FROM music m
+		LEFT OUTER JOIN music_type tp
+		ON m.music_type_id = tp.music_type_id
+		<if test="start!=null and pageSize!=null">
+			limit #{start},#{pageSize}
+		</if>
+	</select>
+	
+	<select id="getMusicById" resultMap="BaseResultMap">
+		SELECT m.music_id,tp.music_type_id,tp.music_type_name,m.name,m.musician,m.upload_date,
+	m.description,m.play_num,m.img_addr,m.save_addr
+	FROM music m
+	LEFT OUTER JOIN music_type tp
+	ON m.music_type_id = tp.music_type_id
+	where m.music_id=#{music_id}
+	</select>
+
+	<select id="getTotalMusicsByType" parameterType="int" resultType="int">
+		select count(*) from music where music_type_id = #{type}
+	</select>
+
+	<select id="getMusicType" resultMap="rm">
+		select * from music_type where music_type_status = 1
+	</select>
+
+	<update id="addPlayNum" parameterType="int">
+		UPDATE music SET play_num = play_num + 1 WHERE music_id = #{musicId}
+	</update>
+
+	<select id="getMusicList" parameterType="string" resultMap="BaseResultMap">
+		select * from music where keywords like concat(concat('%',#{typename}),'%')
+	</select>
+
+	<select id="getMusics" resultMap="BaseResultMap">
+		select * from music where music_id IN
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+</mapper>

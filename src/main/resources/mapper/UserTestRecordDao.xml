@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xupt.dao_user.UserTestRecordDao">
+	<resultMap type="UserTestRecord" id="BaseResultMap">
+		<id column="record_id" jdbcType="INTEGER" property="record_id"/>
+		<result column="user_id" jdbcType="INTEGER" property="user_id"/>
+		<result column="test_id" jdbcType="INTEGER" property="test_id"/>
+		<result column="test_name" jdbcType="VARCHAR" property="test_name"/>
+		<result column="test_result" jdbcType="VARCHAR" property="test_result"/>
+		<result column="status" jdbcType="INTEGER" property="status"/>
+		<result column="test_date" jdbcType="VARCHAR" property="test_date"/>
+	</resultMap>
+	
+	<!-- 为dao接口方法提供sql语句设置 -->
+	<select id="getResultByPaperId" resultMap="BaseResultMap">
+		select * from user_test_record where test_id=#{test_id}
+	</select>
+	
+	<insert id="save" parameterType="UserTestRecord">
+		insert into user_test_record values(null,#{user_id},#{test_id},#{test_result},#{status},#{test_date})
+	</insert>
+	
+	<select id="getTestRecord" resultMap="BaseResultMap">
+		SELECT utd.record_id,utd.user_id,utd.test_id,utd.test_result,utd.status,utd.test_date,tp.test_name
+			FROM user_test_record utd
+			LEFT OUTER JOIN test_paper tp
+			ON utd.test_id = tp.test_id
+			WHERE user_id = #{user_id}
+	</select>
+	
+	<delete id="delete" parameterType="Integer">
+		delete from user_test_record where record_id=#{record_id}
+	</delete>
+</mapper>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xupt.dao_user.UserDao">
+	<resultMap type="User" id="BaseResultMap">
+		<id column="user_id" jdbcType="INTEGER" property="user_id"/>
+		<result column="account" jdbcType="VARCHAR" property="account"/>
+		<result column="password" jdbcType="VARCHAR" property="password"/>
+		<result column="nickname" jdbcType="VARCHAR" property="nickname"/>
+		<result column="sex" jdbcType="INTEGER" property="sex"/>
+		<result column="birthday" jdbcType="VARCHAR" property="birthday"/>
+		<result column="signature" jdbcType="VARCHAR" property="signature"/>
+	</resultMap>
+	
+	<!-- 为dao接口方法提供sql语句设置 -->
+	<select id="findUserByAccount" resultMap="BaseResultMap">
+		select * from user where account=#{account}
+	</select>
+	
+	<select id="login" resultMap="BaseResultMap">
+		select * from user where account=#{account} and password=#{password}
+	</select>
+	
+	<insert id="regist" parameterType="User">
+		insert into user values(null,#{account},#{password},#{nickname},#{sex},#{birthday},#{signature})
+	</insert>
+	
+	<update id="update" parameterType="User">
+		update user
+		<set>
+			<if test="account!=null and account!=''">
+				account=#{account},
+			</if>
+			<if test="password!=null and password!=''">
+				password=#{password},
+			</if>
+			<if test="nickname!=null and nickname!=''">
+				nickname=#{nickname},
+			</if>
+			<if test="sex!=0">
+				sex=#{sex},
+			</if>
+			<if test="birthday!=null and birthday!=''">
+				birthday=#{birthday},
+			</if>
+			<if test="signature!=null and signature!=''">
+				signature=#{signature},
+			</if>
+		</set>
+		where user_id=#{user_id}
+	</update>
+
+	<select id="getUserInfo" parameterType="int" resultMap="BaseResultMap">
+		select * from user where user_id = #{userId}
+	</select>
+</mapper>

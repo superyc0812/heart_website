@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xupt.dao_user.ArticleDao">
+	<resultMap type="Article" id="BaseResultMap">
+		<id column="article_id" jdbcType="INTEGER" property="article_id"/>
+		<result column="title" jdbcType="VARCHAR" property="title"/>
+		<result column="upload_date" jdbcType="VARCHAR" property="upload_date"/>
+		<result column="article_type_id" jdbcType="INTEGER" property="type"/>
+		<result column="article_type_name" jdbcType="VARCHAR" property="typeName"/>
+		<result column="author" jdbcType="VARCHAR" property="author"/>
+		<result column="description" jdbcType="VARCHAR" property="description"/>
+		<result column="content" jdbcType="VARCHAR" property="content"/>
+		<result column="read_num" jdbcType="INTEGER" property="read_num"/>
+		<result column="picture_addr" jdbcType="VARCHAR" property="picture_addr"/>
+	</resultMap>
+
+	<resultMap type="ArticleType" id="rm">
+		<id column="article_type_id" jdbcType="INTEGER" property="article_type_id"/>
+		<result column="article_type_name" jdbcType="VARCHAR" property="article_type_name"/>
+		<result column="article_type_status" jdbcType="BOOLEAN" property="article_type_status"/>
+	</resultMap>
+	
+	<!-- 为dao接口方法提供sql语句设置 -->
+	<select id="findArticle" parameterType="PageBean" resultMap="BaseResultMap">
+		SELECT a.article_id,a.title,a.upload_date,tp.article_type_id,tp.article_type_name,a.author,a.description,
+			a.content,a.read_num,a.picture_addr
+			FROM article a
+			LEFT OUTER JOIN article_type tp
+			ON a.article_type_id = tp.article_type_id
+			WHERE a.article_type_id = #{type}
+		<if test="start!=null and pageSize!=null">
+			limit #{start},#{pageSize}
+		</if>
+	</select>
+	
+	<select id="getArticle" resultMap="BaseResultMap">
+		SELECT a.article_id,a.title,a.upload_date,tp.article_type_id,tp.article_type_name,a.author,a.description,
+		a.content,a.read_num,a.picture_addr
+		FROM article a
+		LEFT OUTER JOIN article_type tp
+		ON a.article_type_id = tp.article_type_id
+		<if test="start!=null and pageSize!=null">
+			limit #{start},#{pageSize}
+		</if>
+	</select>
+	
+	<select id="getArticleById" resultMap="BaseResultMap">
+		SELECT a.article_id,a.title,a.upload_date,tp.article_type_id,tp.article_type_name,a.author,a.description,
+			a.content,a.read_num,a.picture_addr
+		FROM article a
+		LEFT OUTER JOIN article_type tp
+		ON a.article_type_id = tp.article_type_id
+		where a.article_id=#{article_id}
+	</select>
+
+	<select id="getTotalArticlesByType" parameterType="int" resultType="int">
+		select count(*) from article where article_type_id = #{type}
+	</select>
+
+	<select id="getArticleType" resultMap="rm">
+		select * from article_type where article_type_status = 1
+	</select>
+
+	<update id="addReadNum" parameterType="int">
+		UPDATE article SET read_num = read_num + 1 WHERE article_id = #{articleId}
+	</update>
+
+	<select id="getArticleList" parameterType="string" resultMap="BaseResultMap">
+		select * from article where keywords like concat(concat('%',#{typename}),'%')
+	</select>
+
+	<select id="getArticles" resultMap="BaseResultMap">
+		select * from article where article_id IN
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+</mapper>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xupt.dao_user.ForumDao">
+	<resultMap type="Forum" id="BaseResultMap">
+		<id column="forum_id" jdbcType="INTEGER" property="forum_id"/>
+		<result column="user_id" jdbcType="INTEGER" property="user_id"/>
+		<result column="nickname" jdbcType="VARCHAR" property="name"/>
+		<result column="publish_date" jdbcType="VARCHAR" property="publish_date"/>
+		<result column="forum_type_id" jdbcType="INTEGER" property="type"/>
+		<result column="forum_type_name" jdbcType="VARCHAR" property="typeName"/>
+		<result column="description" jdbcType="VARCHAR" property="description"/>
+		<result column="title" jdbcType="VARCHAR" property="title"/>
+		<result column="content" jdbcType="VARCHAR" property="content"/>
+	</resultMap>
+
+	<resultMap type="Forum2" id="BaseResultMap2">
+		<id column="forum_id" jdbcType="INTEGER" property="forum_id"/>
+		<result column="nickname" jdbcType="VARCHAR" property="name"/>
+		<result column="publish_date" jdbcType="VARCHAR" property="publish_date"/>
+		<result column="forum_type_name" jdbcType="VARCHAR" property="typeName"/>
+		<result column="description" jdbcType="VARCHAR" property="description"/>
+		<result column="title" jdbcType="VARCHAR" property="title"/>
+		<result column="content" jdbcType="VARCHAR" property="content"/>
+	</resultMap>
+
+	<resultMap id="rm" type="ForumType2">
+		<id column="forum_type_id" jdbcType="INTEGER" property="forum_label_id"/>
+		<result column="forum_type_name" jdbcType="INTEGER" property="forum_label_name"/>
+		<result column="forum_type_status" jdbcType="BOOLEAN" property="forum_label_status"/>
+	</resultMap>
+	
+	<!-- 为dao接口方法提供sql语句设置 -->
+	<select id="getForums" resultMap="BaseResultMap">
+		SELECT f.forum_id,tp.forum_type_id,tp.forum_type_name,f.user_id,f.publish_date,
+			f.description,f.title,f.content
+			FROM forum f
+			LEFT OUTER JOIN forum_type tp
+			ON f.forum_type_id = tp.forum_type_id
+		<if test="start!=null and pageSize!=null">
+			limit #{start},#{pageSize}
+		</if>
+	</select>
+	
+	<select id="getForumByForumId" resultMap="BaseResultMap">
+		SELECT f.forum_id,tp.forum_type_id,tp.forum_type_name,f.user_id,f.publish_date,
+			f.description,f.title,f.content,u.nickname
+			FROM forum f
+			LEFT OUTER JOIN forum_type tp
+			ON f.forum_type_id = tp.forum_type_id
+			left outer join user u
+			on f.user_id = u.user_id
+		where f.forum_id=#{forum_id}
+	</select>
+
+	<select id="getTotalForums" resultType="int">
+		select count(*) from forum
+	</select>
+
+	<select id="getForumList" parameterType="string" resultMap="BaseResultMap">
+		select * from forum where content like concat(concat('%',#{typename}),'%')
+	</select>
+
+	<select id="getLabels" resultMap="rm">
+		select * from forum_type where forum_type_status = 1
+	</select>
+
+	<insert id="addForum" parameterType="Forum">
+		 insert into forum values (null,#{user_id},#{type},#{publish_date},#{description},#{title},#{content})
+	</insert>
+
+	<select id="getMyforums" parameterType="int" resultMap="BaseResultMap2">
+		SELECT f.forum_id,f.publish_date,f.description,f.title,f.content,ftp.forum_type_name,u.nickname
+			FROM forum f
+			LEFT OUTER JOIN USER u
+			ON u.user_id = f.user_id
+			LEFT OUTER JOIN forum_type ftp
+			ON f.forum_type_id = ftp.forum_type_id
+			WHERE f.user_id = #{userId}
+	</select>
+
+	<delete id="deleteOneForum" parameterType="int">
+		delete from forum where forum_id = #{forumId}
+	</delete>
+</mapper>

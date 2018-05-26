@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xupt.dao_user.ArticleCommentDao">
+	<resultMap type="ArticleComment" id="BaseResultMap">
+		<id column="comment_id" jdbcType="INTEGER" property="id"/>
+		<result column="user_id" jdbcType="INTEGER" property="user_id"/>
+		<result column="nickname" jdbcType="VARCHAR" property="name"/>
+		<result column="article_id" jdbcType="INTEGER" property="article_id"/>
+		<result column="comment_date" jdbcType="VARCHAR" property="comment_date"/>
+		<result column="content" jdbcType="VARCHAR" property="content"/>
+		<collection property="childComments" resultMap="AmlResultMap"/>
+	</resultMap>
+	<resultMap type="AmlComment" id="AmlResultMap">
+		<id column="ml_comment_id" jdbcType="INTEGER" property="id"/>
+		<result column="comment_id" jdbcType="VARCHAR" property="comment_id"/>
+		<result column="user_one" jdbcType="VARCHAR" property="user_one"/>
+		<result column="nickname1" jdbcType="VARCHAR" property="userName1"/>
+		<result column="user_two" jdbcType="INTEGER" property="user_two"/>
+		<result column="nickname2" jdbcType="VARCHAR" property="userName2"/>
+		<result column="aml_content" jdbcType="VARCHAR" property="aml_content"/>
+		<result column="aml_comment_date" jdbcType="VARCHAR" property="aml_comment_date"/>
+	</resultMap>
+	
+	<!-- 为dao接口方法提供sql语句设置 -->
+	<select id="getCommentByArticleId" resultMap="BaseResultMap">
+		SELECT
+			r.ml_comment_id,u.comment_id,r.aml_comment_date,u.comment_date,r.user_one,r.user_two,p1.nickname nickname1,
+			p2.nickname nickname2,r.aml_content,u.content,u.article_id,u.user_id,p3.nickname
+		FROM article_comment u
+	    LEFT JOIN aml_comment r ON u.comment_id=r.comment_id
+	    LEFT JOIN USER p1 ON p1.user_id=r.user_one
+	    LEFT JOIN USER p2 ON p2.user_id=r.user_two
+	    LEFT JOIN USER p3 ON p3.user_id=u.user_id
+	    WHERE u.article_id = #{article_id}
+	</select>
+	
+	<insert id="commitComment" parameterType="ArticleComment">
+		insert into article_comment values(null,#{user_id},#{article_id},#{comment_date},#{content})
+	</insert>
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xupt.dao_user.TestPaperDao">
+	<resultMap type="TestPaper" id="BaseResultMap">
+		<id column="test_id" jdbcType="INTEGER" property="test_id"/>
+		<result column="test_type_id" jdbcType="INTEGER" property="type"/>
+		<result column="test_type_name" jdbcType="VARCHAR" property="typeName"/>
+		<result column="test_name" jdbcType="VARCHAR" property="test_name"/>
+		<result column="test_num" jdbcType="INTEGER" property="test_num"/>
+		<result column="picture_addr" jdbcType="VARCHAR" property="picture_addr"/>
+	</resultMap>
+
+	<resultMap type="TestPaperType" id="rm">
+		<id column="test_type_id" jdbcType="INTEGER" property="test_type_id"/>
+		<result column="test_type_name" jdbcType="VARCHAR" property="test_type_name"/>
+		<result column="test_type_status" jdbcType="BOOLEAN" property="test_type_status"/>
+	</resultMap>
+	
+	<!-- 为dao接口方法提供sql语句设置 -->
+	<select id="getTestPaperByType" resultMap="BaseResultMap">
+		SELECT t.test_id,tp.test_type_id,tp.test_type_name,t.test_name,t.test_num,t.picture_addr
+			FROM test_paper t
+			LEFT OUTER JOIN test_paper_type tp
+			ON t.test_type_id = tp.test_type_id
+			WHERE t.test_type_id = #{type}
+		<if test="start!=null and pageSize!=null">
+			limit #{start},#{pageSize}
+		</if>
+	</select>
+	
+	<select id="getTestPaper" resultMap="BaseResultMap">
+		SELECT t.test_id,tp.test_type_id,tp.test_type_name,t.test_name,t.test_num,t.picture_addr
+			FROM test_paper t
+			LEFT OUTER JOIN test_paper_type tp
+			ON t.test_type_id = tp.test_type_id
+		<if test="start!=null and pageSize!=null">
+			limit #{start},#{pageSize}
+		</if>
+	</select>
+	
+	<select id="getTestPaperNameById" resultMap="BaseResultMap">
+		SELECT t.test_id,tp.test_type_id,tp.test_type_name,t.test_name,t.test_num,t.picture_addr
+			FROM test_paper t
+			LEFT OUTER JOIN test_paper_type tp
+			ON t.test_type_id = tp.test_type_id
+		where t.test_id=#{test_id}
+	</select>
+
+	<select id="getTotalPapersByType" parameterType="int" resultType="int">
+		select count(*) from test_paper where test_type_id = #{type}
+	</select>
+
+	<select id="getTestType" resultMap="rm">
+		SELECT * FROM test_paper_type WHERE test_type_status = 1
+	</select>
+
+	<update id="addTestNum" parameterType="int">
+		UPDATE test_paper SET test_num = test_num + 1 WHERE test_id = #{paperId}
+	</update>
+
+	<select id="getTestPaperById" parameterType="int" resultMap="BaseResultMap">
+		SELECT t.test_id,tp.test_type_id,tp.test_type_name,t.test_name,t.test_num,t.picture_addr
+		FROM test_paper t
+		LEFT OUTER JOIN test_paper_type tp
+		ON t.test_type_id = tp.test_type_id
+		where t.test_id = #{paperId}
+	</select>
+</mapper>
